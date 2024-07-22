@@ -1,0 +1,32 @@
+image:
+  repository: victoriametrics/victoria-metrics
+  tag: v1.101.0@sha256:91d0456cc064e195869175074ced2a6849d72531613b320492698e5fe935d10a
+  pullPolicy: IfNotPresent
+service:
+  main:
+    ports:
+      main:
+        port: 8428
+        targetPort: 8428
+persistence:
+  data:
+    enabled: true
+    mountPath: /victoria-metrics-data
+    targetSelectAll: true
+portal:
+  open:
+    enabled: true
+workload:
+  main:
+    podSpec:
+      containers:
+        main:
+          probes:
+            liveness:
+              type: http
+              path: /health
+            readiness:
+              type: http
+              path: /health
+            startup:
+              enabled: false

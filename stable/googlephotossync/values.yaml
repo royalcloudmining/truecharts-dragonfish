@@ -1,0 +1,37 @@
+image:
+  pullPolicy: IfNotPresent
+  repository: ghcr.io/gilesknap/gphotos-sync
+  tag: 3.2.4@sha256:199116413e84102364b13102c9341d30d1a5fbc6bcae407264c03e4f7e48cb67
+persistence:
+  config:
+    enabled: true
+    mountPath: /config
+  data:
+    enabled: true
+    mountPath: /storage
+portal:
+  open:
+    enabled: false
+securityContext:
+  container:
+    readOnlyRootFilesystem: false
+    runAsGroup: 0
+    runAsUser: 0
+service:
+  main:
+    enabled: false
+    ports:
+      main:
+        enabled: false
+workload:
+  main:
+    podSpec:
+      containers:
+        main:
+          probes:
+            liveness:
+              enabled: false
+            readiness:
+              enabled: false
+            startup:
+              enabled: false

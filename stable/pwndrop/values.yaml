@@ -1,0 +1,25 @@
+image:
+  repository: ghcr.io/linuxserver/pwndrop
+  pullPolicy: IfNotPresent
+  tag: 1.0.1@sha256:6d8bc37af678dbcf8b804706139000ea8e0dd5e47950ccc23e65452dc27204e9
+service:
+  main:
+    ports:
+      main:
+        targetPort: 8080
+        port: 10149
+persistence:
+  config:
+    enabled: true
+    mountPath: "/config"
+  varrun:
+    enabled: true
+portal:
+  open:
+    enabled: true
+securityContext:
+  container:
+    runAsNonRoot: false
+    readOnlyRootFilesystem: false
+    runAsUser: 0
+    runAsGroup: 0

@@ -1,0 +1,101 @@
+image:
+  repository: docker.io/localai/localai
+  pullPolicy: IfNotPresent
+  tag: v2.17.1@sha256:0b2ea102e40903eee881272468bc8e81ea9603f4c718e4de99740ed1553daa7f
+ffmpegImage:
+  repository: docker.io/localai/localai
+  pullPolicy: IfNotPresent
+  tag: v2.17.1-ffmpeg-core@sha256:1228933ed913618754724b314257359f547860205a7e39f262d27deaa2b2bd35
+cublasCuda12Image:
+  repository: docker.io/localai/localai
+  pullPolicy: IfNotPresent
+  tag: v2.17.1-cublas-cuda12-core@sha256:275af7b66c4dd290e079bfe8b05005317f69d38fe209b2206aab3f21be56eae4
+cublasCuda12FfmpegImage:
+  repository: docker.io/localai/localai
+  pullPolicy: IfNotPresent
+  tag: v2.17.1-cublas-cuda12-ffmpeg-core@sha256:b08a7fe4d92aaf346704ab515d5fe7b0dae021cba1a02df0c57cdda884059b58
+cublasCuda11Image:
+  repository: docker.io/localai/localai
+  pullPolicy: IfNotPresent
+  tag: v2.17.1-cublas-cuda11-core@sha256:19b48b55407dad78b56435ab19a87fe55ad09b5338df35a06261868fba04a2ce
+cublasCuda11FfmpegImage:
+  repository: docker.io/localai/localai
+  pullPolicy: IfNotPresent
+  tag: v2.17.1-cublas-cuda11-ffmpeg-core@sha256:a3249d2e366407be99fef8b5fa699cc6607bb40d7a4bfcfe80ffaebcb15a8e11
+allInOneCuda12Image:
+  repository: docker.io/localai/localai
+  pullPolicy: IfNotPresent
+  tag: v2.17.1-aio-gpu-nvidia-cuda-12@sha256:4d8b84a627791ea96194c3499374a2df492aeed698db4751ec427666293ddc9c
+allInOneCuda11Image:
+  repository: docker.io/localai/localai
+  pullPolicy: IfNotPresent
+  tag: v2.17.1-aio-gpu-nvidia-cuda-11@sha256:68c1aced181282bd39ece7f3ad4eae6b0140f672c1c8c4119f694f352730e8b4
+allInOneCpuImage:
+  repository: docker.io/localai/localai
+  pullPolicy: IfNotPresent
+  tag: v2.17.1-aio-cpu@sha256:a98a793f17dc01c4cf20b1b22155f80dfdd81e58f14e8e714101741ae0976b35
+securityContext:
+  container:
+    runAsNonRoot: false
+    readOnlyRootFilesystem: false
+    runAsUser: 0
+    runAsGroup: 0
+service:
+  main:
+    ports:
+      main:
+        protocol: http
+        port: 8080
+localai:
+  # Specify a build type. Available: cublas, openblas, clblas.
+  build_type: "openblas"
+  debug: false
+  cors: true
+  cors_allow_origins: "*"
+  galleries: []
+  #  - name: model-gallery
+  #    url: github:go-skynet/model-gallery/index.yaml
+  preload_models: []
+  #    url: github:go-skynet/model-gallery/gpt4all-j.yaml
+  # UPLOAD_LIMIT
+workload:
+  main:
+    podSpec:
+      containers:
+        main:
+          probes:
+            liveness:
+              enabled: true
+              type: http
+              path: /readyz
+            readiness:
+              enabled: true
+              type: http
+              path: /readyz
+            startup:
+              enabled: true
+              type: tcp
+          imageSelector: image
+          env:
+            ADDRESS: ":{{ .Values.service.main.ports.main.port }}"
+            MODELS_PATH: "{{ .Values.persistence.models.mountPath }}"
+            IMAGE_PATH: "{{ .Values.persistence.images.mountPath }}"
+            BUILD_TYPE: "{{ .Values.localai.build_type }}"
+            # breaks chart if true, keep it false.
+            REBUILD: false
+            DEBUG: "{{ .Values.localai.debug }}"
+            CORS: "{{ .Values.localai.cors }}"
+            GALLERIES: "{{ toJson .Values.localai.galleries }}"
+            PRELOAD_MODELS: "{{ toJson .Values.localai.preload_models }}"
+            CORS_ALLOW_ORIGINS: "{{ .Values.localai.cors_allow_origins }}"
+persistence:
+  models:
+    enabled: true
+    mountPath: "/models"
+  images:
+    enabled: true
+    mountPath: "/images"
+portal:
+  open:
+    enabled: false
+updated: true
